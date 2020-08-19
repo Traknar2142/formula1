@@ -4,6 +4,7 @@ public class Abbreviations {
     private String abbreviation;
     private String racer;
     private String car;
+    private String time;
     
     public Abbreviations(String abb) {
         String abbMass[] = abb.split("_");
@@ -22,5 +23,13 @@ public class Abbreviations {
 
     public String getCar() {
         return car;
+    }
+    
+    public String getTime() {
+        return time;
+    }
+    
+    public void setTime(String time) {
+        this.time = time;
     }
 }
