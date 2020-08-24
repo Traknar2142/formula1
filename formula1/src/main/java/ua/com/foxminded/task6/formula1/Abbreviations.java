@@ -6,8 +6,8 @@ public class Abbreviations {
     private String car;
     private String time;
     
-    public Abbreviations(String abb) {
-        String abbMass[] = abb.split("_");
+    public Abbreviations(String stringLine) {
+        String[] abbMass = stringLine.split("_");
         abbreviation = abbMass[0] ;
         racer = abbMass[1];
         car = abbMass[2];

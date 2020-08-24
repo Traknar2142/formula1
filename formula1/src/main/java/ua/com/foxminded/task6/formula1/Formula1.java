@@ -1,64 +1,80 @@
 package ua.com.foxminded.task6.formula1;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
+import java.util.stream.Stream; 
 
 public class Formula1 {
-    public void makeTable(Path abbreviations, Path start, Path end) throws IOException {
-        int num =1;
-                
+    private static final String TAB = "%-3s %-20s| %-30s | %s %n";
+    private static final String LINE_SEPARATOR = "-------------------------------------------------------------------\n";
+    
+    public String makeTableResult(Path abbreviations, Path start, Path end) throws IOException{
+        int counter = 1;
+        checkFile(abbreviations);
         Stream<String> abbreviationsStream = Files.lines(abbreviations);
-        List<Abbreviations> abbreviationList = abbreviationsStream
-                .map(abbreviation -> new Abbreviations(abbreviation))
+        Map<String, String> startTime = timeTable(start);
+        Map<String, String> endTime = timeTable(end);
+        String line;
+        StringBuilder resultTable = new StringBuilder();
+        
+        List<Abbreviations> abbreviationList = abbreviationsStream.map(Abbreviations::new)
                 .collect(Collectors.toList());
+        abbreviationsStream.close();
 
-        Map<String, String> mapOfStart = timeTable(start);
-        Map<String, String> mapOfEnd = timeTable(end);
-        Map<String, String> lapTime = new HashMap();
-        mapOfStart.forEach((k, v) -> lapTime.put(k, calculateLapTime(v, mapOfEnd.get(k))));
+        Map<String, String> lapTime = new HashMap<>();
+        
+        startTime
+        .forEach((abbreviation, time) -> lapTime.put(abbreviation, calculateLapTime(time, endTime.get(abbreviation))));
+        
         abbreviationList
         .stream()
-        .forEach(ab -> ab.setTime(lapTime.get(ab.getAbbreviation())));
-        
-        List<Abbreviations> abbreviationsSorted = abbreviationList
+        .forEach(abbreviationsObj -> abbreviationsObj.setTime(lapTime.get(abbreviationsObj.getAbbreviation())));
+
+        List<Abbreviations> sortedByTime = abbreviationList
                 .stream()
-                .sorted((o1,o2) -> o1.getTime().compareTo(o2.getTime()))
+                .sorted((abbreviationsObj1, abbreviationsObj2) -> abbreviationsObj1.getTime().compareTo(abbreviationsObj2.getTime()))
                 .collect(Collectors.toList());
-        for (Abbreviations abbreviations2 : abbreviationsSorted) {
-            System.out.printf("%-3s %-20s| %-30s | %s %n", num++ + ".", abbreviations2.getRacer(), abbreviations2.getCar(), abbreviations2.getTime());
-            if(num==16)
-                System.out.println("-------------------------------------------------------------------");
-        }        
+        
+        for (Abbreviations abbreviation : sortedByTime) {
+            line = String.format(TAB, counter++ + ".", abbreviation.getRacer(), abbreviation.getCar(), abbreviation.getTime());
+            resultTable.append(line);
+            if (counter == 16)
+                resultTable.append(LINE_SEPARATOR);
+        }
+        return resultTable.toString();
     }
+
     private String calculateLapTime(String start, String end) {
         LocalDateTime startTime = LocalDateTime.parse(start);
         LocalDateTime endTime = LocalDateTime.parse(end);
         Duration duration = Duration.between(startTime, endTime);
-        String timeLap = LocalTime.ofNanoOfDay(duration.toNanos()).toString();
-        return timeLap.substring(4);
+        String lapTime = LocalTime.ofNanoOfDay(duration.toNanos()).toString();
+        return lapTime.substring(4);
     }
 
-    private Map<String, String> timeTable(Path path) throws IOException{
-        Stream<String> abb = Files.lines(path);
-        Map<String, String> mapSt = abb
-                .collect(Collectors.toMap(x -> x.toString().substring(0, 3), x -> x.toString().substring(3, x.length()).replace('_', 'T')));
-        return  mapSt;
+    private Map<String, String> timeTable(Path path) throws IOException {
+        Stream<String> fileStream = Files.lines(path);
+        Map<String, String> timeMap = fileStream
+                .collect(Collectors.toMap(abbreviation -> abbreviation.substring(0, 3), time -> time.substring(3, time.length()).replace('_', 'T')));
+        fileStream.close();
+        return timeMap;
+    }
+    
+    private void checkFile(Path file) throws IOException {
+        Pattern p = Pattern.compile("^[a-zA-Z]{3}");
+        Files.lines(file).map(p::matcher).filter(Matcher::matches).forEach(System.out::println);
+               
     }
 }
