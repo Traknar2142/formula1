@@ -8,6 +8,7 @@ import java.nio.file.Path;
 import java.time.Duration;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -74,8 +75,12 @@ public class Formula1 {
     
     private void checkFile(Path file) throws IOException {
         Pattern p = Pattern.compile("^[A-Z]{3}_[A-Za-z]+\\s[A-Za-z]+_[A-Z\\s]+$");
-        Files.lines(file).map(p::matcher).filter(Matcher::matches).forEach(System.out::println);
-       // Files.lines(file).noneMatch();
+        List<Boolean> list = new ArrayList<>();
+        Files.lines(file).map(x -> p.matcher(x)).forEach(y -> list.add(y.matches()));
+        if (list.contains(false)) {
+            System.out.println("Error");
+        }
+        //System.out.println(list);
                
     }
 }
