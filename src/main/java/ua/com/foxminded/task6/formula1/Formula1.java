@@ -92,7 +92,7 @@ public class Formula1 {
     }
     
     private void checkFileContentLaptime(Path file) throws IOException, IncorrectFileContentException {
-        Pattern p = Pattern.compile("^[A-Z]{3}_[A-Za-z]+\\s[A-Za-z]+_[A-Z\\s]+$");
+        Pattern p = Pattern.compile("^[A-Z]{3}2018-05-24_[01][0-9]:[0-5][0-9]:[0-5][0-9].[0-9]{3}$");
         List<Boolean> checkList = new ArrayList<>();
         Files.lines(file).map(x -> p.matcher(x)).forEach(y -> checkList.add(y.matches()));
         if (checkList.contains(false)) {
