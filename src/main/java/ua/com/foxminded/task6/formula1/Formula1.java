@@ -73,8 +73,9 @@ public class Formula1 {
     }
     
     private void checkFile(Path file) throws IOException {
-        Pattern p = Pattern.compile("^[a-zA-Z]{3}");
+        Pattern p = Pattern.compile("^[A-Z]{3}_[A-Za-z]+\\s[A-Za-z]+_[A-Z\\s]+$");
         Files.lines(file).map(p::matcher).filter(Matcher::matches).forEach(System.out::println);
+       // Files.lines(file).noneMatch();
                
     }
 }
