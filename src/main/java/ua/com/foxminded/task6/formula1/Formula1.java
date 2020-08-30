@@ -23,7 +23,16 @@ public class Formula1 {
     
     public String makeTableResult(Path abbreviations, Path start, Path end) throws IOException{
         int counter = 1;
-        checkFile(abbreviations);
+        try {
+            checkFileContentAbbrevstions(abbreviations);
+            checkFileContentLaptime(start);
+            checkFileContentLaptime(end);
+        }catch (IncorrectFileContentException e) {
+            e.printStackTrace();
+            System.err.println("Please, check the file");
+            return "application terminated";
+        }
+        
         Stream<String> abbreviationsStream = Files.lines(abbreviations);
         Map<String, String> startTime = timeTable(start);
         Map<String, String> endTime = timeTable(end);
@@ -73,14 +82,21 @@ public class Formula1 {
         return timeMap;
     }
     
-    private void checkFile(Path file) throws IOException {
+    private void checkFileContentAbbrevstions(Path file) throws IOException, IncorrectFileContentException {
         Pattern p = Pattern.compile("^[A-Z]{3}_[A-Za-z]+\\s[A-Za-z]+_[A-Z\\s]+$");
-        List<Boolean> list = new ArrayList<>();
-        Files.lines(file).map(x -> p.matcher(x)).forEach(y -> list.add(y.matches()));
-        if (list.contains(false)) {
-            System.out.println("Error");
-        }
-        //System.out.println(list);
-               
+        List<Boolean> checkList = new ArrayList<>();
+        Files.lines(file).map(x -> p.matcher(x)).forEach(y -> checkList.add(y.matches()));
+        if (checkList.contains(false)) {
+            throw new IncorrectFileContentException("Error in " + (checkList.indexOf(false)+1) + " string in file - " + file);
+        }               
+    }
+    
+    private void checkFileContentLaptime(Path file) throws IOException, IncorrectFileContentException {
+        Pattern p = Pattern.compile("^[A-Z]{3}_[A-Za-z]+\\s[A-Za-z]+_[A-Z\\s]+$");
+        List<Boolean> checkList = new ArrayList<>();
+        Files.lines(file).map(x -> p.matcher(x)).forEach(y -> checkList.add(y.matches()));
+        if (checkList.contains(false)) {
+            throw new IncorrectFileContentException("Error in " + (checkList.indexOf(false)+1) + " string in file - " + file);
+        }               
     }
 }
