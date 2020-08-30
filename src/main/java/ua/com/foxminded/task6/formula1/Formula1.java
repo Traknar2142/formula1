@@ -20,7 +20,8 @@ import java.util.stream.Stream;
 public class Formula1 {
     private static final String TAB = "%-3s %-20s| %-30s | %s %n";
     private static final String LINE_SEPARATOR = "-------------------------------------------------------------------\n";
-    
+    private static final String PATTERN_ABBREVIATIONS = "^[A-Z]{3}_[A-Za-z]+\\s[A-Za-z]+_[A-Z\\s]+$";
+    private static final String PATTERN_TIMELAP = "^[A-Z]{3}2018-05-24_[01][0-9]:[0-5][0-9]:[0-5][0-9].[0-9]{3}$";
     public String makeTableResult(Path abbreviations, Path start, Path end) throws IOException{
         int counter = 1;
         try {
@@ -83,7 +84,7 @@ public class Formula1 {
     }
     
     private void checkFileContentAbbrevstions(Path file) throws IOException, IncorrectFileContentException {
-        Pattern p = Pattern.compile("^[A-Z]{3}_[A-Za-z]+\\s[A-Za-z]+_[A-Z\\s]+$");
+        Pattern p = Pattern.compile(PATTERN_ABBREVIATIONS);
         List<Boolean> checkList = new ArrayList<>();
         Files.lines(file).map(x -> p.matcher(x)).forEach(y -> checkList.add(y.matches()));
         if (checkList.contains(false)) {
@@ -92,7 +93,7 @@ public class Formula1 {
     }
     
     private void checkFileContentLaptime(Path file) throws IOException, IncorrectFileContentException {
-        Pattern p = Pattern.compile("^[A-Z]{3}2018-05-24_[01][0-9]:[0-5][0-9]:[0-5][0-9].[0-9]{3}$");
+        Pattern p = Pattern.compile(PATTERN_TIMELAP);
         List<Boolean> checkList = new ArrayList<>();
         Files.lines(file).map(x -> p.matcher(x)).forEach(y -> checkList.add(y.matches()));
         if (checkList.contains(false)) {
