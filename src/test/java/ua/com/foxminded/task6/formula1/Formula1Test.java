@@ -16,10 +16,14 @@ class Formula1Test {
     Path abbreviations2 = Paths.get("src/test/resources/abbreviations-3.txt");
     Path abbreviations3 = Paths.get("src/test/resources/abbreviations-4.txt");
     Path abbreviations4 = Paths.get("src/test/resources/nothing.txt");
+    Path abbreviationWrongContent = Paths.get("src/test/resources/abbreviations-wrong-content.txt");
+    Path startWrongContent = Paths.get("src/test/resources/start-wrong-content.log");
+    Path endWrongContent = Paths.get("src/test/resources/end-wrong-content.log");
+    
     Formula1 formula1 = new Formula1();
     
     @Test
-    void test() throws IOException {
+    void makeTableResult_ShoudReturnResultTableWithSeparateLine_WhenInputIsCorrect() throws IOException, IncorrectFileContentException {
         String expected = "1.  Sebastian Vettel    | FERRARI                        | 1:04.415 \r\n" + 
                           "2.  Daniel Ricciardo    | RED BULL RACING TAG HEUER      | 1:12.013 \r\n" + 
                           "3.  Valtteri Bottas     | MERCEDES                       | 1:12.434 \r\n" + 
@@ -44,7 +48,7 @@ class Formula1Test {
     }
     
     @Test
-    void test2() throws IOException {
+    void makeTableResult_ShoudReturnResultTableWithoutSeparateLine_WhenInputIsCorrect() throws IOException, IncorrectFileContentException {
         String expected = "1.  Sebastian Vettel    | FERRARI                        | 1:04.415 \r\n" + 
                           "2.  Daniel Ricciardo    | RED BULL RACING TAG HEUER      | 1:12.013 \r\n" + 
                           "3.  Valtteri Bottas     | MERCEDES                       | 1:12.434 \r\n" + 
@@ -54,29 +58,37 @@ class Formula1Test {
                           "7.  Esteban Ocon        | FORCE INDIA MERCEDES           | 1:13.028 \r\n";
         assertEquals(expected, formula1.makeTableResult(abbreviations2, start, end));
     }
-    
+        
     @Test
-    void test3() throws IOException {
-        String expected = "1.  Sebastian Vettel    | FERRARI                        | 1:04.415 \r\n" + 
-                          "2.  Daniel Ricciardo    | RED BULL RACING TAG HEUER      | 1:12.013 \r\n" + 
-                          "3.  Valtteri Bottas     | MERCEDES                       | 1:12.434 \r\n" + 
-                          "4.  Lewis Hamilton      | MERCEDES                       | 1:12.460 \r\n" + 
-                          "5.  Kimi Raikkonen      | FERRARI                        | 1:12.639 \r\n" + 
-                          "6.  Fernando Alonso     | MCLAREN RENAULT                | 1:12.657 \r\n" + 
-                          "7.  Esteban Ocon        | FORCE INDIA MERCEDES           | 1:13.028 \r\n";
-        assertEquals(expected, formula1.makeTableResult(abbreviations2, start, end));
-    }
-    
-    @Test
-    void test4() throws IOException {
+    void makeTableResult_ShoudReturnResultTableWithSingleRacer_WhenInputAbbreviationsIsContainsOneRacer() throws IOException, IncorrectFileContentException {
         String expected = "1.  Daniel Ricciardo    | RED BULL RACING TAG HEUER      | 1:12.013 \r\n";
         assertEquals(expected, formula1.makeTableResult(abbreviations3, start, end));
     }
     
     @Test
-    void test5() throws IOException {
+    void makeTableResult_ShoudReturnNothing_WhenInputIsAbbreviationsIsNothingt() throws IOException, IncorrectFileContentException {
         String expected = "";
         assertEquals(expected, formula1.makeTableResult(abbreviations4, start, end));
     }
 
+    @Test
+    void makeTableResult_ShouldThrowIncorrectFileContentException_WhenAbbrevationsFileIncorrect() {
+        assertThrows(IncorrectFileContentException.class, () -> {
+            formula1.makeTableResult(abbreviationWrongContent, start, end);
+        });
+    }
+    
+    @Test
+    void makeTableResult_ShouldThrowIncorrectFileContentException_WhenStartFileIncorrect() {
+        assertThrows(IncorrectFileContentException.class, () -> {
+            formula1.makeTableResult(abbreviationWrongContent, startWrongContent, end);
+        });
+    }
+    
+    @Test
+    void makeTableResult_ShouldThrowIncorrectFileContentException_WhenEndFileIncorrect() {
+        assertThrows(IncorrectFileContentException.class, () -> {
+            formula1.makeTableResult(abbreviations, start, endWrongContent);
+        });
+    }
 }

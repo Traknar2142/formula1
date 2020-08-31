@@ -7,10 +7,10 @@ public class Abbreviations {
     private String time;
     
     public Abbreviations(String stringLine) {
-        String[] abbMass = stringLine.split("_");
-        abbreviation = abbMass[0] ;
-        racer = abbMass[1];
-        car = abbMass[2];
+        String[] racerInfo = stringLine.split("_");
+        abbreviation = racerInfo[0] ;
+        racer = racerInfo[1];
+        car = racerInfo[2];
     }
 
     public String getAbbreviation() {

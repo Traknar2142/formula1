@@ -1,11 +1,11 @@
 package ua.com.foxminded.task6;
 
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import ua.com.foxminded.task6.formula1.Formula1;
+import ua.com.foxminded.task6.formula1.IncorrectFileContentException;
 
 public class Formula1App {
 
@@ -19,6 +19,8 @@ public class Formula1App {
         }catch (IOException e) {
             System.err.println("File not found " + e.getMessage());
             e.printStackTrace();
-        }        
+        }catch(IncorrectFileContentException e) {
+            System.err.print("Check the file");
+        }
     }
 }
