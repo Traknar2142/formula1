@@ -22,20 +22,15 @@ public class Formula1 {
 
     public String makeTableResult(Path abbreviations, Path start, Path end) throws IOException, IncorrectFileContentException {
         int counter = 1;
-        try {
-            checkFileContentAbbrevstions(abbreviations);
-            checkFileContentLaptime(start);
-            checkFileContentLaptime(end);
-        } catch (IncorrectFileContentException e) {
-            e.printStackTrace();
-            System.err.println("Please, check the file");
-            throw new IncorrectFileContentException();
-        }
+        int firstLooserRacer = 16;
+        
+        checkFileContentAbbrevstions(abbreviations);
+        checkFileContentLaptime(start);
+        checkFileContentLaptime(end);
 
         Stream<String> abbreviationsStream = Files.lines(abbreviations);
-        Map<String, String> startTime = timeTable(start);
-        Map<String, String> endTime = timeTable(end);
-        String line;
+        Map<String, String> startTime = getLapInfo(start);
+        Map<String, String> endTime = getLapInfo(end);
         StringBuilder resultTable = new StringBuilder();
 
         List<Abbreviations> abbreviationList = abbreviationsStream
@@ -55,23 +50,24 @@ public class Formula1 {
                 .collect(Collectors.toList());
 
         for (Abbreviations abbreviation : sortedByTime) {
-            line = String.format(TAB, counter++ + ".", abbreviation.getRacer(), abbreviation.getCar(), abbreviation.getTime());
+            String line = String.format(TAB, counter++ + ".", abbreviation.getRacer(), abbreviation.getCar(), abbreviation.getTime());
             resultTable.append(line);
-            if (counter == 16)
+            if (counter == firstLooserRacer)
                 resultTable.append(LINE_SEPARATOR);
         }
         return resultTable.toString();
     }
 
     private String calculateLapTime(String start, String end) {
+        int hours = 4;
         LocalDateTime startTime = LocalDateTime.parse(start);
         LocalDateTime endTime = LocalDateTime.parse(end);
         Duration duration = Duration.between(startTime, endTime);
         String lapTime = LocalTime.ofNanoOfDay(duration.toNanos()).toString();
-        return lapTime.substring(4);
+        return lapTime.substring(hours);
     }
 
-    private Map<String, String> timeTable(Path path) throws IOException {
+    private Map<String, String> getLapInfo(Path path) throws IOException {
         Stream<String> fileStream = Files.lines(path);
         Map<String, String> timeMap = fileStream.collect(Collectors.toMap(abbreviation -> abbreviation.substring(0, 3), time -> time.substring(3, time.length()).replace('_', 'T')));
         fileStream.close();
@@ -83,7 +79,8 @@ public class Formula1 {
         List<Boolean> checkList = new ArrayList<>();
         Files.lines(file).map(string -> pattern.matcher(string)).forEach(match -> checkList.add(match.matches()));
         if (checkList.contains(false)) {
-            throw new IncorrectFileContentException("Error in " + (checkList.indexOf(false) + 1) + " string in file - " + file);
+            System.err.println("Error in " + (checkList.indexOf(false) + 1) + " string in file - " + file);
+            throw new IncorrectFileContentException("Please, check the file: " + file.getFileName());
         }
     }
 
@@ -92,7 +89,8 @@ public class Formula1 {
         List<Boolean> checkList = new ArrayList<>();
         Files.lines(file).map(string -> pattern.matcher(string)).forEach(match -> checkList.add(match.matches()));
         if (checkList.contains(false)) {
-            throw new IncorrectFileContentException("Error in " + (checkList.indexOf(false) + 1) + " string in file - " + file);
+            System.err.println("Error in " + (checkList.indexOf(false) + 1) + " string in file - " + file);
+            throw new IncorrectFileContentException("Please, check the file: " + file.getFileName());
         }
     }
 }
