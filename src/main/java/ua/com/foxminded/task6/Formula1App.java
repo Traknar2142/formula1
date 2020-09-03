@@ -11,24 +11,25 @@ import ua.com.foxminded.task6.formula1.IncorrectFileContentException;
 
 public class Formula1App {
 
-    public static void main(String[] args) throws IOException {
+    public static void main(String[] args){
         Formula1App app = new Formula1App();
         Formula1 formula1 = new Formula1();
-        
-        Path start = app.getPath("start-1.log");
-        Path end = app.getPath("end-2.log");
-        Path abbreviations = app.getPath("abbreviations-2.txt");
-        
+
         try {
-            System.out.println(formula1.makeTableResult(abbreviations,start,end)); 
-        }catch (FileNotFoundException e) {
-            System.err.println("File not found " + e.getMessage());            
-        }catch(IncorrectFileContentException e) {
+            Path start = app.getPath("start-1.log");
+            Path end = app.getPath("end-2.log");
+            Path abbreviations = app.getPath("abbreviations-2.txt");
+            System.out.println(formula1.makeTableResult(abbreviations, start, end));
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+        } catch (IncorrectFileContentException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    private Path getPath(String file) throws FileNotFoundException {
+    public Path getPath(String file) throws FileNotFoundException {
         ClassLoader classLoader = getClass().getClassLoader();
 
         try {
@@ -40,6 +41,5 @@ public class Formula1App {
         File resource = new File(classLoader.getResource(file).getFile());
         Path resourcePath = Paths.get(resource.getAbsolutePath());
         return resourcePath;
-
     }
 }

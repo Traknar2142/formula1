@@ -79,7 +79,7 @@ public class Formula1 {
         List<Boolean> checkList = new ArrayList<>();
         Files.lines(file).map(string -> pattern.matcher(string)).forEach(match -> checkList.add(match.matches()));
         if (checkList.contains(false)) {
-            System.err.println("Error in " + (checkList.indexOf(false) + 1) + " string in file - " + file);
+            System.err.println("Error in " + (checkList.indexOf(false) + 1) + " line in file - " + file);
             throw new IncorrectFileContentException("Please, check the file: " + file.getFileName());
         }
     }
