@@ -13,6 +13,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -28,9 +30,9 @@ public class Formula1 {
         Path startTimePath = getPath(startTime);
         Path endTimePath = getPath(endTime);
         
-        checkFileContentAbbreviations(abbreviationsPath);
-        checkFileContentLaptime(startTimePath);
-        checkFileContentLaptime(endTimePath);
+        checkFileContent(abbreviationsPath, PATTERN_ABBREVIATIONS);
+        checkFileContent(startTimePath,PATTERN_TIMELAP);
+        checkFileContent(endTimePath, PATTERN_TIMELAP);
 
         Stream<String> abbreviationsStream = Files.lines(abbreviationsPath);
         Map<String, String> startTimes = getLapInfo(startTimePath);
@@ -92,26 +94,19 @@ public class Formula1 {
         return timeMap;
     }
 
-    private void checkFileContentAbbreviations(Path file) throws IOException, IncorrectFileContentException {
-        Pattern pattern = Pattern.compile(PATTERN_ABBREVIATIONS);
-        List<Boolean> checkList = new ArrayList<>();
+    private void checkFileContent(Path file, String regex) throws IOException, IncorrectFileContentException {
+        Pattern pattern = Pattern.compile(regex);
+        List<String> checkList = new ArrayList<>();
+        Stream<String> fileStream =  Files.lines(file);
         
-        Files.lines(file).map(string -> pattern.matcher(string)).forEach(match -> {
-            if (match.matches() == false) {
-            throw new IncorrectFileContentException("Please, check the file: " + file.getFileName());}
+        fileStream.map(string -> pattern.matcher(string)).forEach(match -> {
+            if (!match.matches()) {
+                checkList.add(match.replaceAll(""));
+            }
         });
-        if (checkList.contains(false)) {
-            System.err.println("Error in " + (checkList.indexOf(false) + 1) + " line in file - " + file);
-            throw new IncorrectFileContentException("Please, check the file: " + file.getFileName());
-        }
-    }
-
-    private void checkFileContentLaptime(Path file) throws IOException, IncorrectFileContentException {
-        Pattern pattern = Pattern.compile(PATTERN_TIMELAP);
-        List<Boolean> checkList = new ArrayList<>();
-        Files.lines(file).map(string -> pattern.matcher(string)).forEach(match -> checkList.add(match.matches()));
-        if (checkList.contains(false)) {
-            System.err.println("Error in " + (checkList.indexOf(false) + 1) + " string in file - " + file);
+        fileStream.close();
+        if (!checkList.isEmpty()) {
+            checkList.stream().forEach(line -> System.err.println("Error in line " + (checkList.indexOf(line)+1) +": " + line));
             throw new IncorrectFileContentException("Please, check the file: " + file.getFileName());
         }
     }
