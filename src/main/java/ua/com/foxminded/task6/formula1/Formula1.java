@@ -76,13 +76,13 @@ public class Formula1 {
     }
 
     private String calculateLapTime(String start, String end) {
-        int unnecessaryHours = 4;
+        int hoursValueSize = 4;
         LocalDateTime startTime = LocalDateTime.parse(start);
         LocalDateTime endTime = LocalDateTime.parse(end);
         Duration duration = Duration.between(startTime, endTime);
         String lapTime = LocalTime.ofNanoOfDay(duration.toNanos()).toString();
         
-        return lapTime.substring(unnecessaryHours);
+        return lapTime.substring(hoursValueSize);
     }
 
     private Map<String, String> getLapInfo(Path path) throws IOException {
